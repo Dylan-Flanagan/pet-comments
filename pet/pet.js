@@ -1,9 +1,9 @@
 /* Imports */
 // this will check if we have a user and set signout link if it exists
 import '../auth/user.js';
-import { getPet } from '../fetch-utils.js';
 // > Part B: import pet fetch
 // > Part C: import create comment
+import { getPet, createComment } from '../fetch-utils.js';
 import { renderComment } from '../render-utils.js';
 
 /* Get DOM Elements */
@@ -41,19 +41,36 @@ window.addEventListener('load', async () => {
         location.assign('/');
     } else {
         displayPet();
+        // > Part C: also call display comments in addition to display pet
+        displayComments();
     }
-    // > Part C: also call display comments in addition to display pet
 });
 
+// > Part C:
 addCommentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    // > Part C:
-    //    - create an comment insert object from formdata and the id of the pet
+    const formData = new FormData(addCommentForm);
     //    - create the comment
+    //    - create an comment insert object from formdata and the id of the pet
+    const commentInsert = {
+        pet_id: pet.id,
+        text: formData.get('text'),
+    };
+
+    const response = await createComment(commentInsert);
+    error = response.error;
+    const comment = response.data;
+
     //    - store and check for an error and display it, otherwise
-    //    - add the new comment (data) to the front of the pet comments using unshift
-    //    - reset the form
+    if (error) {
+        displayError();
+    } else {
+        //    - reset the form
+        addCommentForm.reset();
+        //    - add the new comment (data) to the front of the pet comments using unshift
+        pet.comments.unshift(comment);
+        displayComments();
+    }
 });
 
 /* Display Functions */
@@ -81,5 +98,7 @@ function displayComments() {
 
     for (const comment of pet.comments) {
         // > Part C: render the comments
+        const commentEl = renderComment(comment);
+        commentList.append(commentEl);
     }
 }
