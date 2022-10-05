@@ -36,7 +36,7 @@ export async function createPet(pet) {
 export async function getPets() {
     return await client.from('pets').select('*');
 }
-
+//Part B: Load Pet Detail (function already exp. in template)
 export async function getPet(id) {
     return await client
         .from('pets')
