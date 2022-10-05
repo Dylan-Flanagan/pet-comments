@@ -3,6 +3,7 @@
 import '../auth/user.js';
 // > Part B: import pet fetch
 // > Part C: import create comment
+import { getPet, createComment } from '../fetch-utils.js';
 import { renderComment } from '../render-utils.js';
 
 /* Get DOM Elements */
@@ -26,18 +27,50 @@ window.addEventListener('load', async () => {
     //  - if error, display it
     //  - of no pet, redirect to list (home) page
     //  - otherwise, display pet
-    // > Part C: also call display comments in addition to display pet
+    const searchParams = new URLSearchParams(location.search);
+    const id = searchParams.get('id');
+
+    const response = await getPet(id);
+    error = response.error;
+    pet = response.data;
+
+    if (error) {
+        displayError();
+    }
+    if (!pet) {
+        location.assign('/');
+    } else {
+        displayPet();
+        // > Part C: also call display comments in addition to display pet
+        displayComments();
+    }
 });
 
+// > Part C:
 addCommentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    // > Part C:
-    //    - create an comment insert object from formdata and the id of the pet
+    const formData = new FormData(addCommentForm);
     //    - create the comment
+    //    - create an comment insert object from formdata and the id of the pet
+    const commentInsert = {
+        pet_id: pet.id,
+        text: formData.get('text'),
+    };
+
+    const response = await createComment(commentInsert);
+    error = response.error;
+    const comment = response.data;
+
     //    - store and check for an error and display it, otherwise
-    //    - add the new comment (data) to the front of the pet comments using unshift
-    //    - reset the form
+    if (error) {
+        displayError();
+    } else {
+        //    - reset the form
+        addCommentForm.reset();
+        //    - add the new comment (data) to the front of the pet comments using unshift
+        pet.comments.unshift(comment);
+        displayComments();
+    }
 });
 
 /* Display Functions */
@@ -54,6 +87,10 @@ function displayError() {
 
 function displayPet() {
     // > Part B: display the pet info
+    petName.textContent = pet.name;
+    petBio.textContent = pet.bio;
+    petImage.src = pet.image_url;
+    petImage.alt = `${pet.name} image`;
 }
 
 function displayComments() {
@@ -61,5 +98,7 @@ function displayComments() {
 
     for (const comment of pet.comments) {
         // > Part C: render the comments
+        const commentEl = renderComment(comment);
+        commentList.append(commentEl);
     }
 }

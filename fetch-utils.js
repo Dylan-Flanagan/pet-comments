@@ -36,7 +36,7 @@ export async function createPet(pet) {
 export async function getPets() {
     return await client.from('pets').select('*');
 }
-
+//Part B: Load Pet Detail (function already exp. in template)
 export async function getPet(id) {
     return await client
         .from('pets')
@@ -50,7 +50,7 @@ export async function getPet(id) {
         .order('created_at', { foreignTable: 'comments', ascending: false })
         .single();
 }
-
+//Function for createComment already included in template
 export async function createComment(comment) {
     return await client.from('comments').insert(comment).single();
 }
