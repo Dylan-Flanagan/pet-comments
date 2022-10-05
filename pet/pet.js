@@ -36,6 +36,9 @@ window.addEventListener('load', async () => {
 
     if (error) {
         displayError();
+    }
+    if (!pet) {
+        location.assign('/');
     } else {
         displayPet();
     }
